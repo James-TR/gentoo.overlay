@@ -5,7 +5,7 @@
 EAPI=5
 
 MY_P="${PN}-v${PV}"
-inherit toolchain-funcs
+inherit eutils toolchain-funcs
 
 DESCRIPTION="Port multiplexer - accept both HTTPS and SSH connections on the same port"
 HOMEPAGE="http://www.rutschle.net/tech/sslh.shtml"
