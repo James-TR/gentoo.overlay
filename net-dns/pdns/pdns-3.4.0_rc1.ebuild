@@ -8,7 +8,7 @@ inherit autotools eutils multilib systemd user toolchain-funcs
 
 DESCRIPTION="The PowerDNS Daemon"
 HOMEPAGE="http://www.powerdns.com/"
-SRC_URI="https://github.com/PowerDNS/pdns/archive/auth-3.4.0-rc1.zip"
+SRC_URI="http://powerdnssec.org/downloads/pdns-3.4.0-rc1.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
