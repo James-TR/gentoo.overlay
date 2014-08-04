@@ -36,7 +36,6 @@ RDEPEND="!static? (
 		sqlite? ( dev-db/sqlite:3 )
 		odbc? ( dev-db/unixODBC )
 		opendbx? ( dev-db/opendbx )
-		remote-http? ( net-misc/curl )
 		tinydns? ( dev-db/cdb ) )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
@@ -87,7 +86,6 @@ src_configure() {
 	use botan && myconf+=" --enable-botan1.10"
 	use cryptopp && myconf+=" --enable-cryptopp"
 	use debug && myconf+=" --enable-verbose-logging"
-	#use remote-http && myconf+=" --enable-remotebackend-http"
 
 	econf \
 		--with-system-polarssl \
