@@ -55,8 +55,6 @@ DEPEND="${RDEPEND}
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}/${P}-fix-curl-link.patch"
 	eautoreconf
 }
 
