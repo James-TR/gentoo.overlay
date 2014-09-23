@@ -18,7 +18,7 @@ else
     SRC_URI="http://powerdnssec.org/downloads/${PN}-${MY_PV}.tar.bz2"
     KEYWORDS="amd64 x86"
 fi
-S="${WORKDIR}/${MY_PV}"
+S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="GPL-2"
 SLOT="0"
