@@ -16,7 +16,7 @@ if [[ ${PV} == *9999* ]]; then
     KEYWORDS=""
 else
 	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/PowerDNS/pdns.git"}
-	EGIT_COMMIT="b9b5cc1cec16c860f4f390927a8dfbc7aa936d07"
+	EGIT_COMMIT="auth-3.4.0-rc2"
     SRC_URI=""
     KEYWORDS="~amd64 ~x86"
 fi
