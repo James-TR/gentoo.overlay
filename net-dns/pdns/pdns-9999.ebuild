@@ -4,19 +4,18 @@
 
 EAPI=5
 
-inherit autotools eutils multilib systemd user toolchain-funcs
+inherit autotools eutils multilib systemd user toolchain-funcs git-2
 
 MY_PV=${PV/_/-}
 DESCRIPTION="The PowerDNS Daemon"
 HOMEPAGE="http://www.powerdns.com/"
 if [[ ${PV} == *9999* ]]; then
-    inherit git-2
     EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/PowerDNS/pdns.git"}
     SRC_URI=""
     KEYWORDS=""
 else
 	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/PowerDNS/pdns.git"}
-	EGIT_COMMIT="b9b5cc1cec16c860f4f390927a8dfbc7aa936d07"
+	EGIT_COMMIT="auth-3.4.0-rc2"
     SRC_URI=""
     KEYWORDS="~amd64 ~x86"
 fi
