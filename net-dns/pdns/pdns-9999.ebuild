@@ -15,10 +15,12 @@ if [[ ${PV} == *9999* ]]; then
     SRC_URI=""
     KEYWORDS=""
 else
-    SRC_URI="http://powerdnssec.org/downloads/${PN}-${MY_PV}.tar.bz2"
-    KEYWORDS="amd64 x86"
+	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/PowerDNS/pdns.git"}
+	EGIT_COMMIT="b9b5cc1cec16c860f4f390927a8dfbc7aa936d07"
+    SRC_URI=""
+    KEYWORDS="~amd64 ~x86"
 fi
-S="${WORKDIR}/pdns-3.4.0-rc1"
+S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="GPL-2"
 SLOT="0"
