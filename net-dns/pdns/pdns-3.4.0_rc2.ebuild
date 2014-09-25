@@ -100,8 +100,8 @@ src_configure() {
 		--disable-static \
 		--sysconfdir=/etc/powerdns \
 		--libdir=/usr/$(get_libdir)/powerdns \
-		--with-modules="${modules}" \
-		--with-dynmodules="${dynmodules}" \
+		--with-modules=\"${modules}\" \
+		--with-dynmodules=\"${dynmodules}\" \
 		--with-pgsql-includes=/usr/include \
 		--with-pgsql-lib=/usr/$(get_libdir) \
 		--with-mysql-lib=/usr/$(get_libdir) \
