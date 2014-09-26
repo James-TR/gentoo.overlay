@@ -64,6 +64,8 @@ DEPEND="${RDEPEND}
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
+    epatch \
+	        "${FILESDIR}/${P}-fix-yahttp-link.patch"
 	eautoreconf
 }
 
