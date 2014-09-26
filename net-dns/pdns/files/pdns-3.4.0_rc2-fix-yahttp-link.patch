@@ -1,0 +1,9 @@
+--- a/pdns/Makefile.am 2014-08-29 14:02:13.000000000 +0000
++++ b/pdns/Makefile.am 2014-09-26 12:45:30.321966773 +0000
+ AM_CXXFLAGS += -DSYSCONFDIR=\"$(sysconfdir)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DLOCALSTATEDIR=\"$(socketdir)\" $(THREADFLAGS) $(LUA_CFLAGS) $(SQLITE3_CFLAGS) $(POLARSSL_CFLAGS) -I$(top_srcdir)/pdns/ext/rapidjson/include -I$(top_srcdir)/pdns/ext/yahttp
+
+-YAHTTP_LIBS = -Lext/yahttp/yahttp -lyahttp
++YAHTTP_LIBS = ext/yahttp/yahttp/.libs/router.o ext/yahttp/yahttp/.libs/reqresp.o
+
+ AM_LFLAGS = -i
+ AM_YFLAGS = -d --verbose --debug
