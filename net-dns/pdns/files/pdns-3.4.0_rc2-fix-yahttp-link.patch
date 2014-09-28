@@ -1,10 +1,37 @@
---- a/pdns/Makefile.am 2014-08-29 14:02:13.000000000 +0000
-+++ b/pdns/Makefile.am 2014-09-26 12:45:30.321966773 +0000
-@@ -1,6 +1,6 @@
- AM_CXXFLAGS += -DSYSCONFDIR=\"$(sysconfdir)\" -DPKGLIBDIR=\"$(pkglibdir)\" -DLOCALSTATEDIR=\"$(socketdir)\" $(THREADFLAGS) $(LUA_CFLAGS) $(SQLITE3_CFLAGS) $(POLARSSL_CFLAGS) -I$(top_srcdir)/pdns/ext/rapidjson/include -I$(top_srcdir)/pdns/ext/yahttp
+From 7224e5dae9d7a76c308c73bd64bd027d587e00b3 Mon Sep 17 00:00:00 2001
+From: Ruben Kerkhof <ruben@rubenkerkhof.com>
+Date: Sat, 27 Sep 2014 22:27:34 +0200
+Subject: [PATCH] Make sure yahttp is linked into remotebackend
 
--YAHTTP_LIBS = -Lext/yahttp/yahttp -lyahttp
-+YAHTTP_LIBS = ext/yahttp/yahttp/.libs/router.o ext/yahttp/yahttp/.libs/reqresp.o
+Make sure that the yahttp directory is built first
+and then link in the resulting library.
 
- AM_LFLAGS = -i
- AM_YFLAGS = -d --verbose --debug
+Checked with readelf -s .libs/libremotebackend.so | grep NOTYPE
+that this fixes the undefined symbol.
+
+Fixes #1732
+---
+ modules/remotebackend/Makefile.am | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/modules/remotebackend/Makefile.am b/modules/remotebackend/Makefile.am
+index e5f171d..4cd8007 100644
+--- a/modules/remotebackend/Makefile.am
++++ b/modules/remotebackend/Makefile.am
+@@ -4,6 +4,7 @@ AM_CPPFLAGS=$(THREADFLAGS) $(BOOST_CPPFLAGS) -I../../pdns/ext/rapidjson/include
+ #       install .lib/libremotebackend.so.0.0.0 @libdir@
+ #endif
+ 
++SUBDIRS=../../pdns/ext/yahttp
+ EXTRA_DIST=OBJECTFILES OBJECTLIBS testrunner.sh unittest_http.rb unittest_json.rb unittest_pipe.rb unittest_zeromq.rb unittest_post.rb unittest.rb Gemfile Gemfile.lock
+ EXTRA_PROGRAMS=test_remotebackend_pipe test_remotebackend_unix test_remotebackend_http test_remotebackend_post test_remotebackend_json test_remotebackend_zeromq
+ EXTRA_LTLIBRARIES=libtestremotebackend.la
+@@ -16,7 +17,7 @@ pkglib_LTLIBRARIES = libremotebackend.la
+ libremotebackend_la_SOURCES=remotebackend.hh remotebackend.cc unixconnector.cc httpconnector.cc pipeconnector.cc zmqconnector.cc
+ 
+ libremotebackend_la_LDFLAGS=-module -avoid-version
+-libremotebackend_la_LIBADD=$(LIBZMQ_LIBS) 
++libremotebackend_la_LIBADD=$(LIBZMQ_LIBS) ../../pdns/ext/yahttp/yahttp/libyahttp.la
+ 
+ if UNIT_TESTS
+ TESTS_ENVIRONMENT = env BOOST_TEST_LOG_LEVEL=message REMOTEBACKEND_ZEROMQ=$(REMOTEBACKEND_ZEROMQ) ./testrunner.sh 
