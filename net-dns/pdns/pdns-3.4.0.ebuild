@@ -15,10 +15,9 @@ if [[ ${PV} == *9999* ]]; then
     SRC_URI=""
     KEYWORDS=""
 else
-    SRC_URI="http://powerdnssec.org/downloads/${PN}-${MY_PV}.tar.bz2"
+    SRC_URI="http://downloads.powerdns.com/releases/${P}.tar.bz2"
     KEYWORDS="~amd64 ~x86"
 fi
-S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -64,8 +63,6 @@ DEPEND="${RDEPEND}
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
-    epatch \
-	        "${FILESDIR}/${P}-fix-yahttp-link.patch"
 	eautoreconf
 }
 

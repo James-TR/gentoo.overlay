@@ -1,1 +1,1 @@
-pdns-3.4.0_rc2.ebuild
+pdns-3.4.0.ebuild
