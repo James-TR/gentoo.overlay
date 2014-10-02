@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE repositories SYSTEM "/dtd/repositories.dtd">
+<repositories xmlns="" version="1.0">
+  <repo quality="testing" status="unofficial">
+    <name><![CDATA[jamestr]]></name>
+    <description lang="en"><![CDATA[My random Gentoo packages]]></description>
+    <homepage>https://github.com/James-TR</homepage>
+    <owner type="person">
+      <email>james@jtaylor.id.au</email>
+      <name><![CDATA[James Taylor]]></name>
+    </owner>
+    <source type="git">git://github.com/James-TR/gentoo.overlay.git</source>
+  </repo>
+</repositories>
