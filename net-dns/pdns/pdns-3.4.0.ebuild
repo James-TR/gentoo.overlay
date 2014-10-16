@@ -34,7 +34,7 @@ REQUIRED_USE="mydns? ( mysql )"
 
 RDEPEND="!static? (
 		net-libs/polarssl
-		>=dev-libs/boost-1.34:=
+		>=dev-libs/boost-1.35:=
 		botan? ( =dev-libs/botan-1.10* )
 		cryptopp? ( dev-libs/crypto++ )
 		lua? ( dev-lang/lua )
@@ -49,7 +49,7 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	static? (
 		>=net-libs/polarssl-1.3.0[static-libs(+)]
-		>=dev-libs/boost-1.34[static-libs(+)]
+		>=dev-libs/boost-1.35[static-libs(+)]
 		botan? ( =dev-libs/botan-1.10*[static-libs(+)] )
 		cryptopp? ( dev-libs/crypto++[static-libs(+)] )
 		lua? ( dev-lang/lua[static-libs(+)] )
