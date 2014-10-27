@@ -28,7 +28,7 @@ SLOT="0"
 # xdb: (almost) dead, surely not supported
 
 IUSE="botan cryptopp debug doc ldap lua mydns mysql odbc opendbx postgres remote
-sqlite static tools tinydns test"
+sqlite geoip static tools tinydns test"
 
 REQUIRED_USE="mydns? ( mysql )"
 
