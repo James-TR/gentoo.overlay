@@ -44,7 +44,8 @@ RDEPEND="!static? (
 		sqlite? ( dev-db/sqlite:3 )
 		odbc? ( dev-db/unixODBC )
 		opendbx? ( dev-db/opendbx )
-		tinydns? ( dev-db/cdb ) )"
+		tinydns? ( dev-db/cdb )
+		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip ) )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	static? (
@@ -59,7 +60,8 @@ DEPEND="${RDEPEND}
 		sqlite? ( dev-db/sqlite:3[static-libs(+)] )
 		odbc? ( dev-db/unixODBC[static-libs(+)] )
 		opendbx? ( dev-db/opendbx[static-libs(+)] )
-		tinydns? ( dev-db/cdb ) )
+		tinydns? ( dev-db/cdb )
+		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] ) )
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
@@ -67,7 +69,7 @@ src_prepare() {
 }
 
 src_configure() {
-	local dynmodules="pipe geo" # the default backends, always enabled
+	local dynmodules="pipe geo bind" # the default backends, always enabled
 	local modules=""
 
 	#use db2 && dynmodules+=" db2"
