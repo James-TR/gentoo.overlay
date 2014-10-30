@@ -84,6 +84,7 @@ src_configure() {
 	use remote && dynmodules+=" remote"
 	use sqlite && dynmodules+=" gsqlite3"
 	use tinydns && dynmodules+=" tinydns"
+	use geoip && dynmodules+=" geoip"
 	#use xdb && dynmodules+=" xdb"
 
 	if use static ; then
