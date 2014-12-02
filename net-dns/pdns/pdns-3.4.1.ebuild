@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-dns/pdns/pdns-3.3.1.ebuild,v 1.4 2014/03/12 05:12:06 phajdan.jr Exp $
+# $Header: $
 
 EAPI=5
 
@@ -27,8 +27,8 @@ SLOT="0"
 # oracle: dito (need Oracle Client Libraries)
 # xdb: (almost) dead, surely not supported
 
-IUSE="botan cryptopp debug doc ldap lua mydns mysql odbc opendbx postgres remote
-sqlite geoip static tools tinydns test"
+IUSE="botan cryptopp debug doc geoip ldap lua mydns mysql odbc opendbx postgres remote
+sqlite static tools tinydns test"
 
 REQUIRED_USE="mydns? ( mysql )"
 
@@ -37,6 +37,7 @@ RDEPEND="!static? (
 		>=dev-libs/boost-1.35:=
 		botan? ( =dev-libs/botan-1.10* )
 		cryptopp? ( dev-libs/crypto++ )
+		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip )
 		lua? ( dev-lang/lua )
 		mysql? ( virtual/mysql )
 		postgres? ( dev-db/postgresql-base:= )
@@ -44,8 +45,7 @@ RDEPEND="!static? (
 		sqlite? ( dev-db/sqlite:3 )
 		odbc? ( dev-db/unixODBC )
 		opendbx? ( dev-db/opendbx )
-		tinydns? ( dev-db/cdb )
-		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip ) )"
+		tinydns? ( dev-db/cdb ) )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
 	static? (
@@ -53,6 +53,7 @@ DEPEND="${RDEPEND}
 		>=dev-libs/boost-1.35[static-libs(+)]
 		botan? ( =dev-libs/botan-1.10*[static-libs(+)] )
 		cryptopp? ( dev-libs/crypto++[static-libs(+)] )
+		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] )
 		lua? ( dev-lang/lua[static-libs(+)] )
 		mysql? ( virtual/mysql[static-libs(+)] )
 		postgres? ( dev-db/postgresql-base[static-libs(+)] )
@@ -60,8 +61,7 @@ DEPEND="${RDEPEND}
 		sqlite? ( dev-db/sqlite:3[static-libs(+)] )
 		odbc? ( dev-db/unixODBC[static-libs(+)] )
 		opendbx? ( dev-db/opendbx[static-libs(+)] )
-		tinydns? ( dev-db/cdb )
-		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] ) )
+		tinydns? ( dev-db/cd ) )
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
@@ -73,6 +73,7 @@ src_configure() {
 	local modules=""
 
 	#use db2 && dynmodules+=" db2"
+    use geoip && dynmodules+=" geoip"
 	use ldap && dynmodules+=" ldap"
 	use lua && dynmodules+=" lua"
 	use mydns && dynmodules+=" mydns"
@@ -84,7 +85,6 @@ src_configure() {
 	use remote && dynmodules+=" remote"
 	use sqlite && dynmodules+=" gsqlite3"
 	use tinydns && dynmodules+=" tinydns"
-	use geoip && dynmodules+=" geoip"
 	#use xdb && dynmodules+=" xdb"
 
 	if use static ; then
