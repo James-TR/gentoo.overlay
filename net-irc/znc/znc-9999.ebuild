@@ -12,8 +12,7 @@ DESCRIPTION="An advanced IRC Bouncer"
 
 if [[ ${PV} == *9999* ]]; then
 	inherit git-2
-	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/james-tr/znc.git"}
-	EGIT_REPO_BRANCH="csocket_fix"
+	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/znc/znc.git"}
 	SRC_URI=""
 	KEYWORDS=""
 else
