@@ -40,7 +40,7 @@ src_prepare() {
 	cp "${FILESDIR}"/bsdqueue.h "${S}"/bsdqueue.h 
 
 	sed -e 's/^\#include <sys\/queue.h>/\#include \"bsdqueue.h\"/g'
-	-i "${S}"/config.c "${S}"/logrotate.h "${S}"/logrotate.c
+	-i config.c logrotate.h logrotate.c
 }
 
 src_compile() {
