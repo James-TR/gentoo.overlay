@@ -115,6 +115,12 @@ src_configure() {
 		-e "s:COMPRESS_COMMAND=.*$:COMPRESS_COMMAND=${EPREFIX}/bin/gzip:" \
 		src/EDITME > Local/Makefile
 
+    if use !elibc_glibc; then
+        sed -e 's/^LIBS = -lnsl/LIBS =/g' \
+        -e 's/^HAVE_ICONV=yes/#HAVE_ICONV=yes/' \
+        -i OS/Makefile-Linux
+    fi
+
 	cd Local
 
 	cat >> Makefile <<- EOC
