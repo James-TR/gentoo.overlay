@@ -1,0 +1,27 @@
+--- a/config.c
++++ b/config.c
+@@ -1,4 +1,4 @@
+-#include <sys/queue.h>
++#include "bsdqueue.h"
+ /* Alloca is defined in stdlib.h in NetBSD */
+ #if !defined(__NetBSD__) && !defined(__FreeBSD__)
+ #include <alloca.h>
+--- a/logrotate.c
++++ b/logrotate.c
+@@ -1,4 +1,4 @@
+-#include <sys/queue.h>
++#include "bsdqueue.h"
+ /* alloca() is defined in stdlib.h in NetBSD */
+ #if !defined(__NetBSD__) && !defined(__FreeBSD__)
+ #include <alloca.h>
+--- a/logrotate.h
++++ b/logrotate.h
+@@ -2,7 +2,7 @@
+ #define H_LOGROTATE
+ 
+ #include <sys/types.h>
+-#include <sys/queue.h>
++#include "bsdqueue.h"
+ #include <glob.h>
+ 
+ #include "config.h"

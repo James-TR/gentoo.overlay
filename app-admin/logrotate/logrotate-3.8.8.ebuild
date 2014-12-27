@@ -35,12 +35,10 @@ src_prepare() {
 		"${FILESDIR}"/${P}-fbsd.patch \
 		"${FILESDIR}"/${P}-noasprintf.patch \
 		"${FILESDIR}"/${P}-atomic-create.patch
+		"${FILESDIR}"/${P}-queue_h_fix.patch
 	"${S}"/autogen.sh || die
 
 	cp "${FILESDIR}"/bsdqueue.h "${S}"/bsdqueue.h 
-
-	sed -e 's/^\#include <sys\/queue.h>/\#include \"bsdqueue.h\"/g'
-	-i config.c logrotate.h logrotate.c
 }
 
 src_compile() {
