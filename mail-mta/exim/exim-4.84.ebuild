@@ -115,7 +115,7 @@ src_configure() {
 		-e "s:COMPRESS_COMMAND=.*$:COMPRESS_COMMAND=${EPREFIX}/bin/gzip:" \
 		src/EDITME > Local/Makefile
 
-    if use !elibc_glibc; then
+    if use elibc_musl; then
         sed -e 's/^LIBS = -lnsl/LIBS =/g' \
         -e 's/^HAVE_ICONV=yes/#HAVE_ICONV=yes/' \
         -i OS/Makefile-Linux
@@ -130,7 +130,7 @@ src_configure() {
 	EOC
 
 	# if we use libiconv, now is the time to tell so
-	use !elibc_glibc && echo "EXTRALIBS_EXIM=-liconv" >> Makefile
+	use !elibc_glibc && !elibc_musl && echo "EXTRALIBS_EXIM=-liconv" >> Makefile
 
 	# support for IPv6
 	if use ipv6; then
