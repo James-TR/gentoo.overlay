@@ -130,7 +130,7 @@ src_configure() {
 	EOC
 
 	# if we use libiconv, now is the time to tell so
-	use !elibc_glibc && !elibc_musl && echo "EXTRALIBS_EXIM=-liconv" >> Makefile
+	use !elibc_glibc && use !elibc_musl && echo "EXTRALIBS_EXIM=-liconv" >> Makefile
 
 	# support for IPv6
 	if use ipv6; then
