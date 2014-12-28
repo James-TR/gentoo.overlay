@@ -34,7 +34,7 @@ src_prepare() {
 		"${FILESDIR}"/${P}-ignore-hidden.patch \
 		"${FILESDIR}"/${P}-fbsd.patch \
 		"${FILESDIR}"/${P}-noasprintf.patch \
-		"${FILESDIR}"/${P}-atomic-create.patch
+		"${FILESDIR}"/${P}-atomic-create.patch \
 		"${FILESDIR}"/${P}-queue_h_fix.patch
 	"${S}"/autogen.sh || die
 
