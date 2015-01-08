@@ -66,6 +66,10 @@ pkg_setup() {
 src_prepare() {
 	if [[ ${PV} == *9999* ]]; then
 		./autogen.sh
+        (
+            git submodule status | sed 's/^[ +-]//;s/ .*//'
+            git hash-object bootstrap.conf
+        ) >.git-module-status
 	fi
 
 	base_src_prepare
