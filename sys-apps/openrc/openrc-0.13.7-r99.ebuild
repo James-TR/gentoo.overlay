@@ -55,7 +55,7 @@ src_prepare() {
 		sed -i "/^GITVER[[:space:]]*=/s:=.*:=${ver}:" mk/git.mk || die
 	fi
 
-	epatch "${FILESDIR}"/${PN}-0.12.4-ifdef_cplusplus.patch
+#	epatch "${FILESDIR}"/${PN}-0.12.4-ifdef_cplusplus.patch
 	epatch "${FILESDIR}"/${PN}-0.12.4-local-queue_h.patch
 
 	cp "${FILESDIR}"/queue.h "$S"/src/librc
