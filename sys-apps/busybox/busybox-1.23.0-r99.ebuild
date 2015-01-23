@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/busybox/busybox-1.22.1.ebuild,v 1.2 2014/02/02 08:17:37 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-apps/busybox/busybox-1.23.0.ebuild,v 1.4 2015/01/17 03:11:56 zlogene Exp $
 
 # See `man savedconfig.eclass` for info on how to use USE=savedconfig.
 
@@ -21,15 +21,16 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-
-IUSE="ipv6 livecd make-symlinks math mdev -pam selinux sep-usr +static syslog systemd"
+IUSE="debug ipv6 livecd make-symlinks math mdev -pam selinux sep-usr +static syslog systemd"
 RESTRICT="test"
 
-RDEPEND="!static? ( selinux? ( sys-libs/libselinux ) )
+COMMON_DEPEND="!static? ( selinux? ( sys-libs/libselinux ) )
 	pam? ( sys-libs/pam )"
-DEPEND="${RDEPEND}
+DEPEND="${COMMON_DEPEND}
 	static? ( selinux? ( sys-libs/libselinux[static-libs(+)] ) )
 	>=sys-kernel/linux-headers-2.6.39"
+RDEPEND="${COMMON_DEPEND}
+mdev? ( !<sys-apps/openrc-0.13 )"
 
 S=${WORKDIR}/${MY_P}
 
@@ -66,7 +67,7 @@ src_prepare() {
 
 	# patches go here!
 	epatch "${FILESDIR}"/${PN}-1.19.0-bb.patch
-	epatch "${FILESDIR}"/${P}-*.patch
+#	epatch "${FILESDIR}"/${P}-*.patch
 	cp "${FILESDIR}"/ginit.c init/ || die
 
 	# flag cleanup
@@ -94,18 +95,18 @@ src_configure() {
 
 	restore_config .config
 	if [ -f .config ]; then
-		yes "" | emake -j1 oldconfig > /dev/null
+		yes "" | emake -j1 -s oldconfig >/dev/null
 		return 0
 	else
 		ewarn "Could not locate user configfile, so we will save a default one"
 	fi
 
 	# setup the config file
-	emake -j1 allyesconfig > /dev/null
+	emake -j1 -s defconfig >/dev/null
 	# nommu forces a bunch of things off which we want on #387555
 	busybox_config_option n NOMMU
 	sed -i '/^#/d' .config
-	yes "" | emake -j1 oldconfig >/dev/null
+	yes "" | emake -j1 -s oldconfig >/dev/null
 
 	# now turn off stuff we really don't want
 	busybox_config_option n DMALLOC
@@ -116,11 +117,9 @@ src_configure() {
 	busybox_config_option n MONOTONIC_SYSCALL
 	busybox_config_option n USE_PORTABLE_CODE
 	busybox_config_option n WERROR
-	busybox_config_option n BRCTL
+	bysybox_config_option n BRCTL
 
-	# turn off some options causing trouble with musl
-	busybox_config_option n EXTRA_COMPAT
-	busybox_config_option n FEATURE_VI_REGEX_SEARCH
+	# causes trouble with musl
 	busybox_config_option n IFPLUGD
 
 	# If these are not set and we are using a uclibc/busybox setup
@@ -133,6 +132,7 @@ src_configure() {
 		busybox_config_option n FEATURE_IPV6
 		busybox_config_option n TRACEROUTE6
 		busybox_config_option n PING6
+		busybox_config_option n UDHCPC6
 	fi
 
 	if use static && use pam ; then
@@ -149,6 +149,7 @@ src_configure() {
 	busybox_config_option y NO_DEBUG_LIB
 	busybox_config_option n DMALLOC
 	busybox_config_option n EFENCE
+	busybox_config_option $(usex debug y n) TFTP_DEBUG
 
 	busybox_config_option selinux SELINUX
 
@@ -212,7 +213,7 @@ src_install() {
 		exeinto /$(get_libdir)/mdev/
 		doexe "${FILESDIR}"/mdev/*
 
-		newinitd "${FILESDIR}"/mdev.rc.1 mdev
+		newinitd "${FILESDIR}"/mdev.initd mdev
 	fi
 	if use livecd ; then
 		dosym busybox /bin/vi
