@@ -117,10 +117,10 @@ src_configure() {
 	busybox_config_option n MONOTONIC_SYSCALL
 	busybox_config_option n USE_PORTABLE_CODE
 	busybox_config_option n WERROR
-	bysybox_config_option n BRCTL
 
 	# causes trouble with musl
 	busybox_config_option n IFPLUGD
+	busybox_config_option n BRCTL
 
 	# If these are not set and we are using a uclibc/busybox setup
 	# all calls to system() will fail.
