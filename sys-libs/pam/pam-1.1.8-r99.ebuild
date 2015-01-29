@@ -94,6 +94,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${MY_PN}-fix-compat.patch
 	epatch "${FILESDIR}"/${MY_PN}-innetgr.patch
 	epatch "${FILESDIR}"/${MY_PN}-fix-build-with-eglibc-2.16.patch
+	# disable insecure modules
+	sed -e 's/pam_rhosts//g' -i modules/Makefile.am
 	elibtoolize
 }
 
