@@ -93,7 +93,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.1.8-doc-install.patch #473650
 	epatch "${FILESDIR}"/${MY_PN}-fix-compat.patch
 	epatch "${FILESDIR}"/${MY_PN}-innetgr.patch
-	epatch "${FILESDIR}"/${MY_PN}-fix-build-with-eglibc-2.16.patch.patch
+	epatch "${FILESDIR}"/${MY_PN}-fix-build-with-eglibc-2.16.patch
 	elibtoolize
 }
 
