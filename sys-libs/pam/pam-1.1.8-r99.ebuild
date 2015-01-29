@@ -18,7 +18,7 @@ SRC_URI="http://www.linux-pam.org/library/${MY_P}.tar.bz2
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0"
 KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~ia64-linux ~x86-linux"
-IUSE="cracklib nls elibc_FreeBSD selinux vim-syntax audit test elibc_glibc debug berkdb nis"
+IUSE="cracklib nls elibc_FreeBSD selinux vim-syntax audit test elibc_musl elibc_glibc debug berkdb nis"
 
 RDEPEND="nls? ( >=virtual/libintl-0-r1[${MULTILIB_USEDEP}] )
 	cracklib? ( >=sys-libs/cracklib-2.9.1-r1[${MULTILIB_USEDEP}] )
@@ -102,6 +102,7 @@ multilib_src_configure() {
 	# user to link libxcrypt in by default, since we won't track the
 	# dependency and allow to break PAM this way.
 	export ac_cv_header_xcrypt_h=no
+	use elibc_musl && export ac_cv_search_crypt=no
 
 	local myconf=(
 		--htmldir="${EPREFIX}"/usr/share/doc/${PF}/html
