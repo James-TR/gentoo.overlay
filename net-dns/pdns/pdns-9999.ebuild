@@ -96,6 +96,11 @@ src_configure() {
 	use cryptopp && myconf+=" --enable-cryptopp"
 	use debug && myconf+=" --enable-verbose-logging"
 
+	if use cryptopp ; then
+		export CRYPTOPP_CFLAGS=${CFLAGS}
+		export CRYPTOPP_LIBS="-lcryptopp"
+	fi
+
 	econf \
 		--with-system-polarssl \
 		--disable-static \
