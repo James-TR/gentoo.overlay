@@ -97,7 +97,7 @@ src_configure() {
 	use debug && myconf+=" --enable-verbose-logging"
 
 	if use cryptopp ; then
-		export CRYPTOPP_CFLAGS=""
+		export CRYPTOPP_CFLAGS
 		export CRYPTOPP_LIBS="-lcryptopp"
 	fi
 
