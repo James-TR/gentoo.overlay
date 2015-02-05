@@ -1,8 +1,20 @@
+From 808cf0b640e4fa0045a31fe04aeb2cfe91c533df Mon Sep 17 00:00:00 2001
+From: James Taylor <james@jtaylor.id.au>
+Date: Thu, 5 Feb 2015 02:49:13 +0000
+Subject: [PATCH] Rebase znc-systemwide-config patch onto master
+
+* Enables system-wide config support when compiled under Gentoo
+---
+ include/znc/znc.h |  3 +++
+ src/main.cpp      | 43 +++++++++++++++++++++++++++++++++++++++++--
+ src/znc.cpp       |  7 ++++++-
+ 3 files changed, 50 insertions(+), 3 deletions(-)
+
 diff --git a/include/znc/znc.h b/include/znc/znc.h
-index 08d12f3..b5f2e97 100644
+index cf2326e..16394f9 100644
 --- a/include/znc/znc.h
 +++ b/include/znc/znc.h
-@@ -185,6 +185,8 @@ public:
+@@ -187,6 +187,8 @@ class CZNC {
  
  	static void DumpConfig(const CConfig* Config);
  
@@ -11,16 +23,16 @@ index 08d12f3..b5f2e97 100644
  private:
  	CFile* InitPidFile();
  	bool DoRehash(CString& sError);
-@@ -229,6 +231,7 @@ protected:
+@@ -231,6 +233,7 @@ class CZNC {
  	unsigned int           m_uiConnectPaused;
  	TCacheMap<CString>     m_sConnectThrottle;
  	bool                   m_bProtectWebSessions;
 +	bool                   m_bSystemWideConfig;
+ 	bool                   m_bHideVersion;
  };
  
- #endif // !_ZNC_H
 diff --git a/src/main.cpp b/src/main.cpp
-index 844c8a3..4bd2504 100644
+index 1ab54df..e9ec6b2 100644
 --- a/src/main.cpp
 +++ b/src/main.cpp
 @@ -16,6 +16,9 @@
@@ -50,39 +62,20 @@ index 844c8a3..4bd2504 100644
  	bool bForeground = false;
  #ifdef ALWAYS_RUN_IN_FOREGROUND
  	bForeground = true;
-@@ -200,7 +206,7 @@ int main(int argc, char** argv) {
+@@ -199,9 +205,37 @@ int main(int argc, char** argv) {
+ #ifdef HAVE_LIBSSL
  	bool bMakePem = false;
  #endif
- 
--	while ((iArg = getopt_long(argc, argv, "hvnrcspd:Df", g_LongOpts, &iOptIndex)) != -1) {
-+	while ((iArg = getopt_long(argc, argv, "hvnrcspd:DfS", g_LongOpts, &iOptIndex)) != -1) {
- 		switch (iArg) {
- 		case 'h':
- 			GenerateHelp(argv[0]);
-@@ -218,6 +224,10 @@ int main(int argc, char** argv) {
- 		case 'c':
- 			bMakeConf = true;
- 			break;
-+		case 'S':
-+			bSystemWideConfig = true;
-+			sSystemWideConfigUser = optarg;
-+			break;
- 		case 's':
- 			bMakePass = true;
- 			break;
-@@ -252,10 +262,38 @@ int main(int argc, char** argv) {
- 		return 1;
- 	}
- 
++
 +	if (bSystemWideConfig && getuid() == 0) {
 +		struct passwd *pwd;
-+
++		
 +		pwd = getpwnam(sSystemWideConfigUser.c_str());
 +		if (pwd == NULL) {
 +			CUtils::PrintError("Daemon user not found.");
 +			return 1;
 +		}
-+
++		
 +		if ((long) pwd->pw_uid == 0) {
 +			CUtils::PrintError("Please define a daemon user other than root.");
 +			return 1;
@@ -103,13 +96,31 @@ index 844c8a3..4bd2504 100644
 +
  	CZNC::CreateInstance();
  
+-	while ((iArg = getopt_long(argc, argv, "hvnrcspd:Df", g_LongOpts, &iOptIndex)) != -1) {
++	while ((iArg = getopt_long(argc, argv, "hvnrcspd:DfS", g_LongOpts, &iOptIndex)) != -1) {
+ 		switch (iArg) {
+ 		case 'h':
+ 			GenerateHelp(argv[0]);
+@@ -219,6 +253,10 @@ int main(int argc, char** argv) {
+ 		case 'c':
+ 			bMakeConf = true;
+ 			break;
++		case 'S':
++			bSystemWideConfig = true;
++			sSystemWideConfigUser = optarg;
++			break;
+ 		case 's':
+ 			bMakePass = true;
+ 			break;
+@@ -255,6 +293,7 @@ int main(int argc, char** argv) {
+ 
  	CZNC* pZNC = &CZNC::Get();
  	pZNC->InitDirs(((argc) ? argv[0] : ""), sDataDir);
 +	pZNC->SetSystemWideConfig(bSystemWideConfig);
  
  #ifdef HAVE_LIBSSL
  	if (bMakePem) {
-@@ -304,7 +342,7 @@ int main(int argc, char** argv) {
+@@ -303,7 +342,7 @@ int main(int argc, char** argv) {
  		CUtils::PrintStatus(true, "");
  	}
  
@@ -119,7 +130,7 @@ index 844c8a3..4bd2504 100644
  		CUtils::PrintError("reasons for this and it can, in theory, cause great damage!");
  		if (!bAllowRoot) {
 diff --git a/src/znc.cpp b/src/znc.cpp
-index e2c8c5b..55c3289 100644
+index 7ebde5f..42a4a92 100644
 --- a/src/znc.cpp
 +++ b/src/znc.cpp
 @@ -55,6 +55,7 @@ CZNC::CZNC() {
@@ -127,10 +138,10 @@ index e2c8c5b..55c3289 100644
  	m_pLockFile = NULL;
  	m_bProtectWebSessions = true;
 +	m_bSystemWideConfig = false;
+ 	m_bHideVersion = false;
  	m_uDisabledSSLProtocols = Csock::EDP_SSL;
  	m_sSSLProtocols = "";
- }
-@@ -856,7 +857,7 @@ bool CZNC::WriteNewConfig(const CString& sConfigFile) {
+@@ -861,7 +862,7 @@ bool CZNC::WriteNewConfig(const CString& sConfigFile) {
  	CUtils::PrintMessage("");
  
  	File.UnLock();
@@ -139,7 +150,7 @@ index e2c8c5b..55c3289 100644
  }
  
  void CZNC::BackupConfigOnce(const CString& sSuffix) {
-@@ -1966,3 +1967,7 @@ void CZNC::LeakConnectQueueTimer(CConnectQueueTimer *pTimer) {
+@@ -1973,3 +1974,7 @@ void CZNC::LeakConnectQueueTimer(CConnectQueueTimer *pTimer) {
  bool CZNC::WaitForChildLock() {
  	return m_pLockFile && m_pLockFile->ExLock();
  }
