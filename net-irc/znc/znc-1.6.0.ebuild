@@ -1,11 +1,11 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-irc/znc/znc-1.4.ebuild,v 1.2 2014/07/12 10:24:23 wired Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-irc/znc/znc-1.4-r1.ebuild,v 1.2 2014/11/28 13:47:58 pacho Exp $
 
 EAPI=5
 
-PYTHON_COMPAT=( python{3_2,3_3} )
-inherit base python-single-r1 user
+PYTHON_COMPAT=( python{3_2,3_3,3_4} )
+inherit base python-single-r1 systemd user
 
 MY_PV=${PV/_/-}
 DESCRIPTION="An advanced IRC Bouncer"
@@ -48,7 +48,7 @@ DEPEND="
 S=${WORKDIR}/${PN}-${MY_PV}
 
 PATCHES=(
-	"${FILESDIR}/${PN}-1.0-systemwideconfig.patch"
+	"${FILESDIR}/${PN}-9999-systemwideconfig.patch"
 )
 
 CONFDIR="/var/lib/znc"
@@ -73,6 +73,7 @@ src_prepare() {
 
 src_configure() {
 	econf \
+		--with-systemdsystemunitdir=$(systemd_get_unitdir) \
 		$(use_enable debug) \
 		$(use_enable ipv6) \
 		$(use_enable perl) \
