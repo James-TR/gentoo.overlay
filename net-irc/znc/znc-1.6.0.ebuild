@@ -37,10 +37,10 @@ RDEPEND="
 DEPEND="
 	virtual/pkgconfig
 	perl? (
-		>=dev-lang/swig-2.0.12
+		>=dev-lang/swig-3.0.2
 	)
 	python? (
-		>=dev-lang/swig-2.0.12
+		>=dev-lang/swig-3.0.2
 	)
 	${RDEPEND}
 "
