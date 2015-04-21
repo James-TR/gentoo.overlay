@@ -48,6 +48,7 @@ RDEPEND="!static? (
 		tinydns? ( dev-db/cdb ) )"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
+	dev-util/ragel
 	static? (
 		>=net-libs/polarssl-1.3.0[static-libs(+)]
 		>=dev-libs/boost-1.35[static-libs(+)]

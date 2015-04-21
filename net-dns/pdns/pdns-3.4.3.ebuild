@@ -65,6 +65,8 @@ DEPEND="${RDEPEND}
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
+	epatch "${FILESDIR}"/${PN}-dynamic-tcp-buffer.patch
+	epatch "${FILESDIR}"/${PN}-fix-glibc-ifdef.patch
 	eautoreconf
 }
 
