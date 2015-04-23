@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -27,7 +27,7 @@ SLOT="0"
 # oracle: dito (need Oracle Client Libraries)
 # xdb: (almost) dead, surely not supported
 
-IUSE="botan cryptopp debug doc geoip ldap lua mydns mysql odbc opendbx postgres remote
+IUSE="botan debug doc geoip ldap lua mydns mysql odbc opendbx postgres remote
 sqlite static tools tinydns test"
 
 REQUIRED_USE="mydns? ( mysql )"
@@ -35,10 +35,9 @@ REQUIRED_USE="mydns? ( mysql )"
 RDEPEND="!static? (
 		net-libs/polarssl
 		>=dev-libs/boost-1.35:=
-		botan? ( =dev-libs/botan-1.10* )
-		cryptopp? ( dev-libs/crypto++ )
+		botan? ( =dev-libs/botan-1.10*[threads(+)] )
 		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip )
-		lua? ( dev-lang/lua )
+		lua? ( dev-lang/lua:* )
 		mysql? ( virtual/mysql )
 		postgres? ( dev-db/postgresql:= )
 		ldap? ( >=net-nds/openldap-2.0.27-r4 )
@@ -51,10 +50,9 @@ DEPEND="${RDEPEND}
 	static? (
 		>=net-libs/polarssl-1.3.0[static-libs(+)]
 		>=dev-libs/boost-1.35[static-libs(+)]
-		botan? ( =dev-libs/botan-1.10*[static-libs(+)] )
-		cryptopp? ( dev-libs/crypto++[static-libs(+)] )
+		botan? ( =dev-libs/botan-1.10*[threads,static-libs(+)] )
 		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] )
-		lua? ( dev-lang/lua[static-libs(+)] )
+		lua? ( dev-lang/lua:*[static-libs(+)] )
 		mysql? ( virtual/mysql[static-libs(+)] )
 		postgres? ( dev-db/postgresql[static-libs(+)] )
 		ldap? ( >=net-nds/openldap-2.0.27-r4[static-libs(+)] )
@@ -93,7 +91,6 @@ src_configure() {
 	fi
 
 	use botan && myconf+=" --enable-botan1.10"
-	use cryptopp && myconf+=" --enable-cryptopp"
 	use debug && myconf+=" --enable-verbose-logging"
 
 	econf \
