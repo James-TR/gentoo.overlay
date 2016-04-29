@@ -1,38 +1,36 @@
-From 808cf0b640e4fa0045a31fe04aeb2cfe91c533df Mon Sep 17 00:00:00 2001
-From: James Taylor <james@jtaylor.id.au>
-Date: Thu, 5 Feb 2015 02:49:13 +0000
-Subject: [PATCH] Rebase znc-systemwide-config patch onto master
+From 8f7d74fbf7fa086e12d8b6eb6f580f57d50981d1 Mon Sep 17 00:00:00 2001
+From: Root <root@nimbus.for-no-reason.net>
+Date: Fri, 29 Apr 2016 03:05:02 +0000
+Subject: [PATCH] gentoo-systemwide-config-patch
 
-* Enables system-wide config support when compiled under Gentoo
 ---
- include/znc/znc.h |  3 +++
- src/main.cpp      | 43 +++++++++++++++++++++++++++++++++++++++++--
- src/znc.cpp       |  7 ++++++-
- 3 files changed, 50 insertions(+), 3 deletions(-)
+ include/znc/znc.h |  2 ++
+ src/main.cpp      | 42 ++++++++++++++++++++++++++++++++++++++++--
+ src/znc.cpp       | 11 ++++++++++-
+ 3 files changed, 52 insertions(+), 3 deletions(-)
 
 diff --git a/include/znc/znc.h b/include/znc/znc.h
-index cf2326e..16394f9 100644
+index ff31291..81db81d 100644
 --- a/include/znc/znc.h
 +++ b/include/znc/znc.h
-@@ -187,6 +187,8 @@ class CZNC {
+@@ -249,6 +249,7 @@ class CZNC {
+     void DisableConfigTimer();
  
- 	static void DumpConfig(const CConfig* Config);
+     static void DumpConfig(const CConfig* Config);
++    void SetSystemWideConfig(bool systemWideConfig);
  
-+	void SetSystemWideConfig(bool systemWideConfig);
-+
- private:
- 	CFile* InitPidFile();
- 	bool DoRehash(CString& sError);
-@@ -231,6 +233,7 @@ class CZNC {
- 	unsigned int           m_uiConnectPaused;
- 	TCacheMap<CString>     m_sConnectThrottle;
- 	bool                   m_bProtectWebSessions;
-+	bool                   m_bSystemWideConfig;
- 	bool                   m_bHideVersion;
- };
- 
+   private:
+     CFile* InitPidFile();
+@@ -304,6 +305,7 @@ class CZNC {
+     unsigned int m_uiForceEncoding;
+     TCacheMap<CString> m_sConnectThrottle;
+     bool m_bProtectWebSessions;
++    bool m_bSystemWideConfig;
+     bool m_bHideVersion;
+     CTranslationDomainRefHolder m_Translation;
+     unsigned int m_uiConfigWriteDelay;
 diff --git a/src/main.cpp b/src/main.cpp
-index 1ab54df..e9ec6b2 100644
+index f6bf0a7..868c7ef 100644
 --- a/src/main.cpp
 +++ b/src/main.cpp
 @@ -16,6 +16,9 @@
@@ -42,119 +40,127 @@ index 1ab54df..e9ec6b2 100644
 +#include <sys/types.h>
 +#include <pwd.h>
 +#include <grp.h>
+ #include <time.h>
+ #include <thread>
  
- #if defined(HAVE_LIBSSL) && defined(HAVE_PTHREAD)
- #include <znc/Threads.h>
-@@ -109,6 +112,7 @@ static const struct option g_LongOpts[] = {
- 	{ "makepass",    no_argument,       0, 's' },
- 	{ "makepem",     no_argument,       0, 'p' },
- 	{ "datadir",     required_argument, 0, 'd' },
-+	{ "system-wide-config-as",      required_argument, 0, 'S' },
- 	{ 0, 0, 0, 0 }
- };
+@@ -114,6 +117,7 @@ static const struct option g_LongOpts[] = {
+     {"makepass", no_argument, nullptr, 's'},
+     {"makepem", no_argument, nullptr, 'p'},
+     {"datadir", required_argument, nullptr, 'd'},
++    {"system-wide-config-as", required_argument, 0, 'S'},
+     {nullptr, 0, nullptr, 0}};
  
-@@ -192,6 +196,8 @@ int main(int argc, char** argv) {
- 	bool bMakeConf = false;
- 	bool bMakePass = false;
- 	bool bAllowRoot = false;
-+	bool bSystemWideConfig = false;
-+	CString sSystemWideConfigUser = "znc";
- 	bool bForeground = false;
+ static void GenerateHelp(const char* appname) {
+@@ -282,6 +286,8 @@ int main(int argc, char** argv) {
+     bool bMakeConf = false;
+     bool bMakePass = false;
+     bool bAllowRoot = false;
++    bool bSystemWideConfig = false;
++    CString sSystemWideConfigUser = "znc";
+     bool bForeground = false;
  #ifdef ALWAYS_RUN_IN_FOREGROUND
- 	bForeground = true;
-@@ -199,9 +205,37 @@ int main(int argc, char** argv) {
+     bForeground = true;
+@@ -289,9 +295,36 @@ int main(int argc, char** argv) {
  #ifdef HAVE_LIBSSL
- 	bool bMakePem = false;
+     bool bMakePem = false;
  #endif
 +
-+	if (bSystemWideConfig && getuid() == 0) {
-+		struct passwd *pwd;
-+		
-+		pwd = getpwnam(sSystemWideConfigUser.c_str());
-+		if (pwd == NULL) {
-+			CUtils::PrintError("Daemon user not found.");
-+			return 1;
-+		}
-+		
-+		if ((long) pwd->pw_uid == 0) {
-+			CUtils::PrintError("Please define a daemon user other than root.");
-+			return 1;
-+		}
-+		if (setgroups(0, NULL) != 0) {
-+			CUtils::PrintError("setgroups: Unable to clear supplementary group IDs");
-+			return 1;
-+		}
-+		if (setgid((long) pwd->pw_gid) != 0) {
-+			CUtils::PrintError("setgid: Unable to drop group privileges");
-+			return 1;
-+		}
-+		if (setuid((long) pwd->pw_uid) != 0) {
-+			CUtils::PrintError("setuid: Unable to drop user privileges");
-+			return 1;
-+		}
-+	}
++    if (bSystemWideConfig && getuid() == 0) {
++        struct passwd *pwd;
 +
- 	CZNC::CreateInstance();
++        pwd = getpwnam(sSystemWideConfigUser.c_str());
++        if (pwd == NULL) {
++            CUtils::PrintError("Daemon user not found.");
++            return 1;
++        }
++        if ((long) pwd->pw_uid == 0) {
++            CUtils::PrintError("Please define a daemon user other than root.");
++            return 1;
++        }
++        if (setgroups(0, NULL) != 0) {
++            CUtils::PrintError("setgroups: Unable to clear supplementary group IDs");
++            return 1;
++        }
++        if (setgid((long) pwd->pw_gid) != 0) {
++            CUtils::PrintError("setgid: Unable to drop group privileges");
++            return 1;
++        }
++        if (setuid((long) pwd->pw_uid) != 0) {
++            CUtils::PrintError("setuid: Unable to drop user privileges");
++            return 1;
++        }
++    }
++
+     CZNC::CreateInstance();
  
--	while ((iArg = getopt_long(argc, argv, "hvnrcspd:Df", g_LongOpts, &iOptIndex)) != -1) {
-+	while ((iArg = getopt_long(argc, argv, "hvnrcspd:DfS", g_LongOpts, &iOptIndex)) != -1) {
- 		switch (iArg) {
- 		case 'h':
- 			GenerateHelp(argv[0]);
-@@ -219,6 +253,10 @@ int main(int argc, char** argv) {
- 		case 'c':
- 			bMakeConf = true;
- 			break;
-+		case 'S':
-+			bSystemWideConfig = true;
-+			sSystemWideConfigUser = optarg;
-+			break;
- 		case 's':
- 			bMakePass = true;
- 			break;
-@@ -255,6 +293,7 @@ int main(int argc, char** argv) {
+-    while ((iArg = getopt_long(argc, argv, "hvnrcspd:Df", g_LongOpts,
++    while ((iArg = getopt_long(argc, argv, "hvnrcspd:DfS", g_LongOpts,
+                                &iOptIndex)) != -1) {
+         switch (iArg) {
+             case 'h':
+@@ -313,6 +346,10 @@ int main(int argc, char** argv) {
+             case 's':
+                 bMakePass = true;
+                 break;
++            case 'S':
++                bSystemWideConfig = true;
++                sSystemWideConfigUser = optarg;
++                break;
+             case 'p':
+ #ifdef HAVE_LIBSSL
+                 bMakePem = true;
+@@ -350,6 +387,7 @@ int main(int argc, char** argv) {
  
- 	CZNC* pZNC = &CZNC::Get();
- 	pZNC->InitDirs(((argc) ? argv[0] : ""), sDataDir);
-+	pZNC->SetSystemWideConfig(bSystemWideConfig);
+     CZNC* pZNC = &CZNC::Get();
+     pZNC->InitDirs(((argc) ? argv[0] : ""), sDataDir);
++    pZNC->SetSystemWideConfig(bSystemWideConfig);
  
  #ifdef HAVE_LIBSSL
- 	if (bMakePem) {
-@@ -303,7 +342,7 @@ int main(int argc, char** argv) {
- 		CUtils::PrintStatus(true, "");
- 	}
+     if (bMakePem) {
+@@ -410,7 +448,7 @@ int main(int argc, char** argv) {
+         CUtils::PrintStatus(true, "");
+     }
  
--	if (isRoot()) {
-+	if (isRoot() && !bSystemWideConfig) {
- 		CUtils::PrintError("You are running ZNC as root! Don't do that! There are not many valid");
- 		CUtils::PrintError("reasons for this and it can, in theory, cause great damage!");
- 		if (!bAllowRoot) {
+-    if (isRoot()) {
++    if (isRoot() && !bSystemWideConfig) {
+         CUtils::PrintError(
+             "You are running ZNC as root! Don't do that! There are not many "
+             "valid");
 diff --git a/src/znc.cpp b/src/znc.cpp
-index 7ebde5f..42a4a92 100644
+index ab103ff..f10df9a 100644
 --- a/src/znc.cpp
 +++ b/src/znc.cpp
-@@ -55,6 +55,7 @@ CZNC::CZNC() {
- 	m_sConnectThrottle.SetTTL(30000);
- 	m_pLockFile = NULL;
- 	m_bProtectWebSessions = true;
-+	m_bSystemWideConfig = false;
- 	m_bHideVersion = false;
- 	m_uDisabledSSLProtocols = Csock::EDP_SSL;
- 	m_sSSLProtocols = "";
-@@ -861,7 +862,7 @@ bool CZNC::WriteNewConfig(const CString& sConfigFile) {
- 	CUtils::PrintMessage("");
+@@ -75,6 +75,7 @@ CZNC::CZNC()
+       m_uiForceEncoding(0),
+       m_sConnectThrottle(),
+       m_bProtectWebSessions(true),
++      m_bSystemWideConfig(false),
+       m_bHideVersion(false),
+       m_Translation("znc"),
+       m_uiConfigWriteDelay(0),
+@@ -1001,7 +1002,7 @@ bool CZNC::WriteNewConfig(const CString& sConfigFile) {
+         // installed.
+         // See https://github.com/znc/znc/pull/257
+         char* szNoLaunch = getenv("ZNC_NO_LAUNCH_AFTER_MAKECONF");
+-        if (szNoLaunch && *szNoLaunch == '1') {
++        if (!m_bSystemWideConfig && szNoLaunch && *szNoLaunch == '1') {
+             bWantLaunch = false;
+         }
+     }
+@@ -2156,9 +2157,13 @@ void CZNC::LeakConnectQueueTimer(CConnectQueueTimer* pTimer) {
  
- 	File.UnLock();
--	return bFileOpen && CUtils::GetBoolInput("Launch ZNC now?", true);
-+	return bFileOpen && !m_bSystemWideConfig && CUtils::GetBoolInput("Launch ZNC now?", true);
- }
+ bool CZNC::WaitForChildLock() { return m_pLockFile && m_pLockFile->ExLock(); }
  
- void CZNC::BackupConfigOnce(const CString& sSuffix) {
-@@ -1973,3 +1974,7 @@ void CZNC::LeakConnectQueueTimer(CConnectQueueTimer *pTimer) {
- bool CZNC::WaitForChildLock() {
- 	return m_pLockFile && m_pLockFile->ExLock();
- }
-+
 +void CZNC::SetSystemWideConfig(bool systemWideConfig) {
-+	m_bSystemWideConfig = systemWideConfig;
++    m_bSystemWideConfig = systemWideConfig;
 +}
++
+ void CZNC::DisableConfigTimer() {
+     if (m_pConfigTimer) {
+         m_pConfigTimer->Stop();
+         m_pConfigTimer = nullptr;
+     }
+ }
+-- 
+2.8.1
+

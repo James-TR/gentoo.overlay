@@ -11,7 +11,7 @@ MY_PV=${PV/_/-}
 DESCRIPTION="An advanced IRC Bouncer"
 
 if [[ ${PV} == *9999* ]]; then
-	inherit git-2
+	inherit git-r3
 	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/znc/znc.git"}
 	SRC_URI=""
 	KEYWORDS=""
@@ -48,7 +48,7 @@ DEPEND="
 S=${WORKDIR}/${PN}-${MY_PV}
 
 PATCHES=(
-	"${FILESDIR}/${PN}-9999-systemwideconfig.patch"
+	"${FILESDIR}/${PN}-${MY_PV}-systemwideconfig.patch"
 )
 
 CONFDIR="/var/lib/znc"
@@ -68,12 +68,12 @@ src_prepare() {
 		./autogen.sh
 	fi
 
-	base_src_prepare
+	default
 }
 
 src_configure() {
 	econf \
-		--with-systemdsystemunitdir=$(systemd_get_unitdir) \
+		--with-systemdsystemunitdir=$(systemd_get_systemunitdir) \
 		$(use_enable debug) \
 		$(use_enable ipv6) \
 		$(use_enable perl) \
