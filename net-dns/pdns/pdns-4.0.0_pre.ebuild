@@ -1,64 +1,56 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Id$
 
 EAPI=5
 
-inherit autotools eutils multilib systemd user toolchain-funcs
+inherit autotools eutils multilib systemd user toolchain-funcs versionator git-r3
 
-MY_PV=${PV/_/-}
+EGIT_REPO_URI="git://github.com/PowerDNS/pdns.git"
+EGIT_COMMIT="ba64cecd417688dc39c75e92f1a23b91f7f46d64"
+
 DESCRIPTION="The PowerDNS Daemon"
 HOMEPAGE="http://www.powerdns.com/"
-if [[ ${PV} == *9999* ]]; then
-	inherit git-2
-	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/PowerDNS/pdns.git"}
-	SRC_URI=""
-	KEYWORDS=""
-else
-	SRC_URI="http://downloads.powerdns.com/releases/${P}.tar.bz2"
-	KEYWORDS="~amd64 ~x86"
-fi
 
 LICENSE="GPL-2"
 SLOT="0"
+KEYWORDS="~amd64 ~x86"
 
 # other possible flags:
 # db2: we lack the dep
 # oracle: dito (need Oracle Client Libraries)
 # xdb: (almost) dead, surely not supported
 
-IUSE="botan debug doc geoip ldap lua mydns mysql odbc opendbx postgres remote
-sqlite static tools tinydns test"
+IUSE="botan debug doc geoip ldap lua mydns mysql opendbx postgres remote sqlite static tools tinydns test"
 
 REQUIRED_USE="mydns? ( mysql )"
 
 RDEPEND="!static? (
-		>=dev-libs/boost-1.35:=
+		>=dev-libs/boost-1.34:=
 		botan? ( =dev-libs/botan-1.10* )
-		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip )
-		lua? ( dev-lang/lua )
+		lua? ( dev-lang/lua:= )
 		mysql? ( virtual/mysql )
 		postgres? ( dev-db/postgresql:= )
 		ldap? ( >=net-nds/openldap-2.0.27-r4 )
 		sqlite? ( dev-db/sqlite:3 )
-		odbc? ( dev-db/unixODBC )
 		opendbx? ( dev-db/opendbx )
-		tinydns? ( dev-db/cdb ) )"
+		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip )
+		tinydns? ( >=dev-db/tinycdb-0.77 )
+	)"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
-	dev-util/ragel
 	static? (
-		>=dev-libs/boost-1.35[static-libs(+)]
+		>=dev-libs/boost-1.34[static-libs(+)]
 		botan? ( =dev-libs/botan-1.10*[static-libs(+)] )
-		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] )
-		lua? ( dev-lang/lua[static-libs(+)] )
+		lua? ( dev-lang/lua:=[static-libs(+)] )
 		mysql? ( virtual/mysql[static-libs(+)] )
 		postgres? ( dev-db/postgresql[static-libs(+)] )
 		ldap? ( >=net-nds/openldap-2.0.27-r4[static-libs(+)] )
 		sqlite? ( dev-db/sqlite:3[static-libs(+)] )
-		odbc? ( dev-db/unixODBC[static-libs(+)] )
 		opendbx? ( dev-db/opendbx[static-libs(+)] )
-		tinydns? ( dev-db/cdb ) )
+		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] )
+		tinydns? ( >=dev-db/tinycdb-0.77 )
+	)
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
@@ -66,22 +58,21 @@ src_prepare() {
 }
 
 src_configure() {
-	local dynmodules="pipe geo bind" # the default backends, always enabled
+	local dynmodules="pipe bind" # the default backends, always enabled
 	local modules=""
 
 	#use db2 && dynmodules+=" db2"
-	use geoip && dynmodules+=" geoip"
 	use ldap && dynmodules+=" ldap"
 	use lua && dynmodules+=" lua"
 	use mydns && dynmodules+=" mydns"
 	use mysql && dynmodules+=" gmysql"
-	use odbc && dynmodules+=" godbc"
 	use opendbx && dynmodules+=" opendbx"
 	#use oracle && dynmodules+=" goracle oracle"
 	use postgres && dynmodules+=" gpgsql"
 	use remote && dynmodules+=" remote"
 	use sqlite && dynmodules+=" gsqlite3"
 	use tinydns && dynmodules+=" tinydns"
+	use geoip && dynmodules+=" geoip"
 	#use xdb && dynmodules+=" xdb"
 
 	if use static ; then
