@@ -66,7 +66,7 @@ src_prepare() {
 }
 
 src_configure() {
-	local dynmodules="pipe geo bind" # the default backends, always enabled
+	local dynmodules="pipe bind" # the default backends, always enabled
 	local modules=""
 
 	#use db2 && dynmodules+=" db2"
