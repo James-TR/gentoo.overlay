@@ -84,6 +84,8 @@ src_configure() {
 	use debug && myconf+=" --enable-verbose-logging"
 
 	econf \
+		--enable-systemd \
+		--with-systemd=$(systemd_get_systemunitdir) \
 		--disable-static \
 		--sysconfdir=/etc/powerdns \
 		--libdir=/usr/$(get_libdir)/powerdns \
@@ -118,7 +120,6 @@ src_install () {
 		"${D}"/etc/powerdns/pdns.conf
 
 	doinitd "${FILESDIR}"/pdns
-	systemd_newunit contrib/systemd-pdns.service pdns.service
 
 	keepdir /var/empty
 
