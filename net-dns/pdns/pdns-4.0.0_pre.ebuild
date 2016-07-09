@@ -21,11 +21,11 @@ KEYWORDS="~amd64 ~x86"
 # oracle: dito (need Oracle Client Libraries)
 # xdb: (almost) dead, surely not supported
 
-IUSE="botan debug doc geoip ldap lua mydns mysql opendbx postgres remote sqlite static tools tinydns test"
+IUSE="botan debug doc geoip ldap lua mydns mysql opendbx postgres remote sqlite static systemd tools tinydns test"
 
 REQUIRED_USE="mydns? ( mysql )"
 
-RDEPEND="!static? (
+RDEPEiND="!static? (
 		>=dev-libs/boost-1.34:=
 		botan? ( =dev-libs/botan-1.10* )
 		lua? ( dev-lang/lua:= )
@@ -51,6 +51,7 @@ DEPEND="${RDEPEND}
 		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] )
 		tinydns? ( >=dev-db/tinycdb-0.77 )
 	)
+	systemd? ( sys-apps/systemd )
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
@@ -84,7 +85,6 @@ src_configure() {
 	use debug && myconf+=" --enable-verbose-logging"
 
 	econf \
-		--enable-systemd \
 		--with-systemd=$(systemd_get_systemunitdir) \
 		--disable-static \
 		--sysconfdir=/etc/powerdns \
@@ -96,6 +96,7 @@ src_configure() {
 		--with-mysql-lib=/usr/$(get_libdir) \
 		$(use_enable test unit-tests) \
 		$(use_with lua) \
+		$(use_enable systemd) \
 		$(use_enable static static-binaries) \
 		$(use_enable tools) \
 		${myconf}
