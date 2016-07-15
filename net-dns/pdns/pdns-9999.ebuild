@@ -1,16 +1,12 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
+# $Id$
 
-EAPI=5
+EAPI=6
 
-inherit autotools eutils multilib systemd user toolchain-funcs
+inherit autotools eutils multilib systemd user toolchain-funcs versionator git-r3
 
-MY_PV=${PV/_/-}
-DESCRIPTION="The PowerDNS Daemon"
-HOMEPAGE="http://www.powerdns.com/"
 if [[ ${PV} == *9999* ]]; then
-	inherit git-2
 	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/PowerDNS/pdns.git"}
 	SRC_URI=""
 	KEYWORDS=""
@@ -19,46 +15,49 @@ else
 	KEYWORDS="~amd64 ~x86"
 fi
 
+DESCRIPTION="The PowerDNS Daemon"
+HOMEPAGE="http://www.powerdns.com/"
+
 LICENSE="GPL-2"
 SLOT="0"
+KEYWORDS="~amd64 ~x86"
 
 # other possible flags:
 # db2: we lack the dep
 # oracle: dito (need Oracle Client Libraries)
 # xdb: (almost) dead, surely not supported
 
-IUSE="botan debug doc geoip ldap lua mydns mysql odbc opendbx postgres remote
-sqlite static tools tinydns test"
+IUSE="botan debug doc geoip ldap lua mydns mysql opendbx postgres remote sqlite static systemd tools tinydns test"
 
 REQUIRED_USE="mydns? ( mysql )"
 
 RDEPEND="!static? (
-		>=dev-libs/boost-1.35:=
+		>=dev-libs/boost-1.34:=
 		botan? ( =dev-libs/botan-1.10* )
-		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip )
-		lua? ( dev-lang/lua )
+		lua? ( dev-lang/lua:= )
 		mysql? ( virtual/mysql )
 		postgres? ( dev-db/postgresql:= )
 		ldap? ( >=net-nds/openldap-2.0.27-r4 )
 		sqlite? ( dev-db/sqlite:3 )
-		odbc? ( dev-db/unixODBC )
 		opendbx? ( dev-db/opendbx )
-		tinydns? ( dev-db/cdb ) )"
+		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip )
+		tinydns? ( >=dev-db/tinycdb-0.77 )
+	)"
 DEPEND="${RDEPEND}
 	virtual/pkgconfig
-	dev-util/ragel
 	static? (
-		>=dev-libs/boost-1.35[static-libs(+)]
+		>=dev-libs/boost-1.34[static-libs(+)]
 		botan? ( =dev-libs/botan-1.10*[static-libs(+)] )
-		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] )
-		lua? ( dev-lang/lua[static-libs(+)] )
+		lua? ( dev-lang/lua:=[static-libs(+)] )
 		mysql? ( virtual/mysql[static-libs(+)] )
 		postgres? ( dev-db/postgresql[static-libs(+)] )
 		ldap? ( >=net-nds/openldap-2.0.27-r4[static-libs(+)] )
 		sqlite? ( dev-db/sqlite:3[static-libs(+)] )
-		odbc? ( dev-db/unixODBC[static-libs(+)] )
 		opendbx? ( dev-db/opendbx[static-libs(+)] )
-		tinydns? ( dev-db/cdb ) )
+		geoip? ( >=dev-cpp/yaml-cpp-0.5.1 dev-libs/geoip[static-libs(+)] )
+		tinydns? ( >=dev-db/tinycdb-0.77 )
+	)
+	systemd? ( sys-apps/systemd )
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
@@ -70,18 +69,17 @@ src_configure() {
 	local modules=""
 
 	#use db2 && dynmodules+=" db2"
-	use geoip && dynmodules+=" geoip"
 	use ldap && dynmodules+=" ldap"
 	use lua && dynmodules+=" lua"
 	use mydns && dynmodules+=" mydns"
 	use mysql && dynmodules+=" gmysql"
-	use odbc && dynmodules+=" godbc"
 	use opendbx && dynmodules+=" opendbx"
 	#use oracle && dynmodules+=" goracle oracle"
 	use postgres && dynmodules+=" gpgsql"
 	use remote && dynmodules+=" remote"
 	use sqlite && dynmodules+=" gsqlite3"
 	use tinydns && dynmodules+=" tinydns"
+	use geoip && dynmodules+=" geoip"
 	#use xdb && dynmodules+=" xdb"
 
 	if use static ; then
@@ -93,6 +91,7 @@ src_configure() {
 	use debug && myconf+=" --enable-verbose-logging"
 
 	econf \
+		--with-systemd=$(systemd_get_systemunitdir) \
 		--disable-static \
 		--sysconfdir=/etc/powerdns \
 		--libdir=/usr/$(get_libdir)/powerdns \
@@ -103,7 +102,8 @@ src_configure() {
 		--with-mysql-lib=/usr/$(get_libdir) \
 		$(use_enable test unit-tests) \
 		$(use_with lua) \
-		$(use_enable static static-binaries) \
+		$(use_enable systemd) \
+		$(use_enable static) \
 		$(use_enable tools) \
 		${myconf}
 }
@@ -127,7 +127,6 @@ src_install () {
 		"${D}"/etc/powerdns/pdns.conf
 
 	doinitd "${FILESDIR}"/pdns
-	systemd_newunit contrib/systemd-pdns.service pdns.service
 
 	keepdir /var/empty
 
@@ -158,11 +157,6 @@ pkg_postinst() {
 	elog
 	elog "The name must be in the format pdns.<suffix> and PowerDNS will use the"
 	elog "/etc/powerdns/pdns-<suffix>.conf configuration file instead of the default."
-
-	if use ldap ; then
-		ewarn "The official LDAP backend module is only compile-tested by upstream."
-		ewarn "Try net-dns/pdns-ldap-backend if you have problems with it."
-	fi
 
 	local fix_perms=0
 
