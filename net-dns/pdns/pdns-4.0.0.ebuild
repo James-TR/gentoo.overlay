@@ -2,12 +2,18 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI=6
 
 inherit autotools eutils multilib systemd user toolchain-funcs versionator git-r3
 
-EGIT_REPO_URI="git://github.com/PowerDNS/pdns.git"
-EGIT_COMMIT="ba64cecd417688dc39c75e92f1a23b91f7f46d64"
+if [[ ${PV} == *9999* ]]; then
+	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/PowerDNS/pdns.git"}
+	SRC_URI=""
+	KEYWORDS=""
+else
+	SRC_URI="http://downloads.powerdns.com/releases/${P}.tar.bz2"
+	KEYWORDS="~amd64 ~x86"
+fi
 
 DESCRIPTION="The PowerDNS Daemon"
 HOMEPAGE="http://www.powerdns.com/"
@@ -25,7 +31,7 @@ IUSE="botan debug doc geoip ldap lua mydns mysql opendbx postgres remote sqlite 
 
 REQUIRED_USE="mydns? ( mysql )"
 
-RDEPEiND="!static? (
+RDEPEND="!static? (
 		>=dev-libs/boost-1.34:=
 		botan? ( =dev-libs/botan-1.10* )
 		lua? ( dev-lang/lua:= )
@@ -97,7 +103,7 @@ src_configure() {
 		$(use_enable test unit-tests) \
 		$(use_with lua) \
 		$(use_enable systemd) \
-		$(use_enable static static-binaries) \
+		$(use_enable static) \
 		$(use_enable tools) \
 		${myconf}
 }
@@ -151,11 +157,6 @@ pkg_postinst() {
 	elog
 	elog "The name must be in the format pdns.<suffix> and PowerDNS will use the"
 	elog "/etc/powerdns/pdns-<suffix>.conf configuration file instead of the default."
-
-	if use ldap ; then
-		ewarn "The official LDAP backend module is only compile-tested by upstream."
-		ewarn "Try net-dns/pdns-ldap-backend if you have problems with it."
-	fi
 
 	local fix_perms=0
 
