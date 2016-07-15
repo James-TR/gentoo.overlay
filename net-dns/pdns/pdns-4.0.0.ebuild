@@ -4,7 +4,7 @@
 
 EAPI=6
 
-inherit autotools eutils multilib systemd user toolchain-funcs versionator
+inherit eutils multilib systemd user toolchain-funcs versionator
 
 if [[ ${PV} == *9999* ]]; then
 	inherit git-r3
@@ -61,7 +61,7 @@ DEPEND="${RDEPEND}
 	doc? ( app-doc/doxygen )"
 
 src_prepare() {
-	eautoreconf
+	default
 }
 
 src_configure() {
