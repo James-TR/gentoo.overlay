@@ -20,7 +20,6 @@ HOMEPAGE="http://www.powerdns.com/"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
 
 # other possible flags:
 # db2: we lack the dep
