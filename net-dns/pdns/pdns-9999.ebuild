@@ -4,9 +4,10 @@
 
 EAPI=6
 
-inherit autotools eutils multilib systemd user toolchain-funcs versionator git-r3
+inherit autotools eutils multilib systemd user toolchain-funcs versionator
 
 if [[ ${PV} == *9999* ]]; then
+	inherit git-r3
 	EGIT_REPO_URI=${EGIT_REPO_URI:-"git://github.com/PowerDNS/pdns.git"}
 	SRC_URI=""
 	KEYWORDS=""
