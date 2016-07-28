@@ -13,7 +13,7 @@ if [[ ${PV} == *9999* ]]; then
 	KEYWORDS=""
 else
 	SRC_URI="http://downloads.powerdns.com/releases/${P}.tar.bz2"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS=""
 fi
 
 DESCRIPTION="The PowerDNS Daemon"
