@@ -59,6 +59,8 @@ PATCHES=(
     "${FILESDIR}/${PN}-3.4.10-fix-elf-native-class.patch"
     "${FILESDIR}/${PN}-3.4.10-fix-std-string.patch"
     "${FILESDIR}/${PN}-3.4.10-fix-log.patch"
+	"${FILESDIR}/${PN}-3.4.10-boost-162.patch"
+	"${FILESDIR}/${PN}-3.4.10-boost-160.patch"
 )
 
 S=${WORKDIR}/${MY_P}
