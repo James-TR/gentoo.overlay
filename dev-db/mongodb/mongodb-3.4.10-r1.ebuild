@@ -54,11 +54,11 @@ PATCHES=(
 	"${FILESDIR}/${PN}-3.4.0-fix-scons.patch"
 	"${FILESDIR}/${PN}-3.4.6-sysmacros-include.patch"
 	"${FILESDIR}/${PN}-3.4.7-no-boost-check.patch"
-	"${FILESDIR}/${PN}-mongodb-3.4.10-fix-asio-strerror_r.patch"
-	"${FILESDIR}/${PN}-mongodb-3.4.10-fix-processinfo_linux.patch"
-    "${FILESDIR}/${PN}-mongodb-3.4.10-fix-elf-native-class.patch"
-    "${FILESDIR}/${PN}-mongodb-3.4.10-fix-std-string.patch"
-    "${FILESDIR}/${PN}-mongodb-3.4.10-fix-log.patch"
+	"${FILESDIR}/${PN}-3.4.10-fix-asio-strerror_r.patch"
+	"${FILESDIR}/${PN}-3.4.10-fix-processinfo_linux.patch"
+    "${FILESDIR}/${PN}-3.4.10-fix-elf-native-class.patch"
+    "${FILESDIR}/${PN}-3.4.10-fix-std-string.patch"
+    "${FILESDIR}/${PN}-3.4.10-fix-log.patch"
 )
 
 S=${WORKDIR}/${MY_P}
