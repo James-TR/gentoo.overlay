@@ -7,6 +7,7 @@ ETYPE=sources
 K_DEFCONFIG="odroidxu4_defconfig"
 K_SECURITY_UNSUPPORTED=1
 EXTRAVERSION="-${PN}/-*"
+KEYWORDS="~arm"
 inherit kernel-2
 detect_version
 detect_arch
