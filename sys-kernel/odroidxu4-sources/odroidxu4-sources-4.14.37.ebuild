@@ -16,7 +16,7 @@ inherit git-r3 versionator
 EGIT_REPO_URI=https://github.com/hardkernel/linux.git
 EGIT_BRANCH="odroidxu4-$(get_version_component_range 1-2).y"
 EGIT_CHECKOUT_DIR="${S}"
-EGIT_COMMIT="b8aafc415973f28ddfc4bd1cbd94446a9a219d72"
+EGIT_COMMIT="7de04f6b76fa575b0143bc4132207840c6188fea"
 
 DESCRIPTION="Kernel Sources for Hardkernel Odroid XU4"
 HOMEPAGE="https://github.com/hardkernel/linux/tree/odroidxu4-4.14.y"
