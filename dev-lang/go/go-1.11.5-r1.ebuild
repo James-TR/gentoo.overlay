@@ -111,7 +111,7 @@ pkg_pretend()
 
 src_prepare()
 {
-	epatch "${FILESDIR}"/default-build-mode-pie.patch
+	epatch "${FILESDIR}"/default-buildmode-pie.patch
 	epatch "${FILESDIR}"/set-external-linker.patch
 	epatch_user
 }
